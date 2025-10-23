@@ -80,6 +80,9 @@ client.on(Events.MessageCreate, async message => {
   if (!config) return; // Not a configured channel
 
   try {
+    // Show typing indicator while processing
+    await channel.sendTyping();
+    
     // Get channel history
     const messages = await channel.messages.fetch({ limit: config.historyLimit || 10 });
     const history = Array.from(messages.values())
