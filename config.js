@@ -1,19 +1,19 @@
 const channelConfig = {
   // Channel name: configuration
-  'general': { 
+  'general': {
     prompt: 'general.txt',
-    model: 'gpt-3.5-turbo',
+    model: 'tngtech/deepseek-r1t2-chimera:free',
     historyLimit: 10
   },
   'financial': {
     prompt: 'financial.txt',
-    model: 'gpt-4',
-    historyLimit: 15
+    model: 'tngtech/deepseek-r1t2-chimera:free',
+    historyLimit: 30
   },
   'therapist': {
     prompt: 'therapist.txt',
-    model: 'claude-2',
-    historyLimit: 20
+    model: 'tngtech/deepseek-r1t2-chimera:free',
+    historyLimit: 40
   }
 };
 
