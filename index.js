@@ -99,6 +99,8 @@ client.on(Events.MessageCreate, async message => {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://github.com/your-repo',
+        'X-Title': 'Discord AI Assistant',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)

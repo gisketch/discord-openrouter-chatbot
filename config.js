@@ -19,7 +19,7 @@ const channelConfig = {
 
 // Default settings/config
 const defaultConfig = {
-  defaultModel: 'gpt-3.5-turbo',
+  defaultModel: 'tngtech/deepseek-r1t2-chimera:free',
   maxHistoryLimit: 30
 };
 
