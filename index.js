@@ -182,7 +182,7 @@ client.on(Events.MessageCreate, async message => {
     const reply = data.choices[0]?.message?.content;
 
     if (reply) {
-      await channel.send(reply);
+      await sendLongMessage(channel, reply);
     } else {
       console.error('No response from OpenRouter:', data);
     }
@@ -190,6 +190,38 @@ client.on(Events.MessageCreate, async message => {
     console.error('Error processing message:', error);
   }
 });
+
+async function sendLongMessage(channel, content) {
+  const MAX_LENGTH = 2000;
+  if (content.length <= MAX_LENGTH) {
+    await channel.send(content);
+    return;
+  }
+
+  const messages = [];
+  let remaining = content;
+  
+  while (remaining.length > 0) {
+    // Try to split at last newline before 2000 chars
+    let chunk = remaining.slice(0, MAX_LENGTH);
+    const lastNewline = chunk.lastIndexOf('\n');
+    
+    if (lastNewline > 0) {
+      chunk = chunk.slice(0, lastNewline);
+    }
+    
+    messages.push(chunk);
+    remaining = remaining.slice(chunk.length).trimStart();
+  }
+
+  // Send chunks with delay between them
+  for (const msg of messages) {
+    if (msg.trim().length > 0) {
+      await channel.send(msg);
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+}
 
 client.login(process.env.DISCORD_TOKEN);
 
