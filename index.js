@@ -140,12 +140,9 @@ client.on(Events.MessageCreate, async message => {
     const channelPrompt = fs.readFileSync(`./prompts/${config.prompt}`, 'utf-8');
     const fullSystemPrompt = `USER is ${userContext.trim()}\nYour system prompt: ${channelPrompt.trim()}`;
 
-    // Create message payload for OpenRouter with reasoning disabled
+    // Create message payload for OpenRouter
     const payload = {
       model: config.model || config.defaultModel,
-      reasoning: {
-        exclude: true  // Disable reasoning tokens in response
-      },
       messages: [
         { role: 'system', content: fullSystemPrompt },
         ...history.slice(-config.historyLimit)
@@ -168,14 +165,7 @@ client.on(Events.MessageCreate, async message => {
     const reply = data.choices[0]?.message?.content;
 
     if (reply) {
-      // If reasoning is disabled, send immediately
-      if (!config.reasoning) {
-        await channel.send(reply);
-      } else {
-        // For models with reasoning, wait a brief moment before replying
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        await channel.send(reply);
-      }
+      await channel.send(reply);
     } else {
       console.error('No response from OpenRouter:', data);
     }
