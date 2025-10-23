@@ -44,6 +44,16 @@ const commands = [
       type: 4,
       required: false
     }]
+  },
+  {
+    name: 'update',
+    description: 'Update my context information (only works in #commands channel)',
+    options: [{
+      name: 'text',
+      description: 'The update text to add',
+      type: 3,
+      required: true
+    }]
   }
 ];
 
@@ -120,6 +130,39 @@ client.on(Events.InteractionCreate, async interaction => {
     } catch (error) {
       console.error('Purge error:', error);
       await interaction.editReply('Error deleting messages: ' + error.message);
+    } else if (interaction.commandName === 'update') {
+      // Only allow this command in #commands channel
+      if (interaction.channel.name !== 'commands') {
+        await interaction.reply({ 
+          content: '❌ This command can only be used in the #commands channel',
+          ephemeral: true 
+        });
+        return;
+      }
+
+      const updateText = interaction.options.getString('text');
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+
+      try {
+        // Read existing context
+        let currentContext = fs.readFileSync('./user_context.txt', 'utf-8');
+        
+        // Append new update
+        currentContext += `\n\n[Update for ${dateStr}]\n- ${updateText}`;
+        
+        // Save updated context
+        fs.writeFileSync('./user_context.txt', currentContext);
+        
+        await interaction.reply(`✅ Successfully updated context with:\n"${updateText}"`);
+      } catch (error) {
+        console.error('Update error:', error);
+        await interaction.reply('❌ Failed to update context: ' + error.message);
+      }
     }
   }
 });
