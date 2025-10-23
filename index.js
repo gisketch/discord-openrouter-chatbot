@@ -33,7 +33,7 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
 client.once(Events.ClientReady, async () => {
   console.log(`Logged in as ${client.user.tag}!`);
-  
+
   try {
     await rest.put(
       Routes.applicationCommands(client.user.id),
@@ -52,12 +52,12 @@ client.on(Events.InteractionCreate, async interaction => {
   if (interaction.commandName === 'model') {
     const model = interaction.options.getString('model_name');
     const channelId = interaction.channelId;
-    
+
     // Update model for this channel
     const settings = channelSettings.get(interaction.channel.name) || {};
     settings.model = model;
     channelSettings.set(interaction.channel.name, settings);
-    
+
     await interaction.reply(`Model set to ${model} for this channel`);
   }
 });
@@ -65,12 +65,12 @@ client.on(Events.InteractionCreate, async interaction => {
 // Handle messages
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot) return;
-  
+
   const channel = message.channel;
   const config = channelSettings.get(channel.name);
-  
+
   if (!config) return; // Not a configured channel
-  
+
   try {
     // Get channel history
     const messages = await channel.messages.fetch({ limit: config.historyLimit || 10 });
@@ -84,7 +84,7 @@ client.on(Events.MessageCreate, async message => {
 
     // Load system prompt
     const prompt = fs.readFileSync(`./prompts/${config.prompt}`, 'utf-8');
-    
+
     // Create message payload for OpenRouter
     const payload = {
       model: config.model || config.defaultModel,
@@ -108,7 +108,7 @@ client.on(Events.MessageCreate, async message => {
 
     const data = await response.json();
     const reply = data.choices[0]?.message?.content;
-    
+
     if (reply) {
       await channel.send(reply);
     } else {
@@ -120,3 +120,5 @@ client.on(Events.MessageCreate, async message => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+console.log('Bot is running!');
