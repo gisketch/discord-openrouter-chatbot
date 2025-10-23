@@ -163,7 +163,8 @@ client.on(Events.InteractionCreate, async interaction => {
       } catch (error) {
         console.error('Update error:', error);
         await interaction.reply('❌ Failed to update context: ' + error.message);
-      }
+    }
+  }
 });
 
 // Handle messages
