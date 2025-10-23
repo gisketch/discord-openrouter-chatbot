@@ -148,6 +148,11 @@ client.on(Events.MessageCreate, async message => {
         ...history.slice(-config.historyLimit)
       ]
     };
+    
+    // Conditionally disable reasoning tokens in API response
+    if (config.reasoning === false) {
+      payload.reasoning = { exclude: true };
+    }
 
     // Make API call
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
