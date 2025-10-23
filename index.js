@@ -135,14 +135,19 @@ client.on(Events.MessageCreate, async message => {
         content: m.content
       }));
 
-    // Load system prompt
-    const prompt = fs.readFileSync(`./prompts/${config.prompt}`, 'utf-8');
+    // Load prompts
+    const userContext = fs.readFileSync('./user_context.txt', 'utf-8');
+    const channelPrompt = fs.readFileSync(`./prompts/${config.prompt}`, 'utf-8');
+    const fullSystemPrompt = `USER is ${userContext.trim()}\nYour system prompt: ${channelPrompt.trim()}`;
 
-    // Create message payload for OpenRouter
+    // Create message payload for OpenRouter with reasoning disabled
     const payload = {
       model: config.model || config.defaultModel,
+      reasoning: {
+        exclude: true  // Disable reasoning tokens in response
+      },
       messages: [
-        { role: 'system', content: prompt },
+        { role: 'system', content: fullSystemPrompt },
         ...history.slice(-config.historyLimit)
       ]
     };
