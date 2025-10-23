@@ -1,3 +1,10 @@
+// Check Node.js version before proceeding
+const [major, minor] = process.version.slice(1).split('.').map(Number);
+if (major < 22 || (major === 22 && minor < 12)) {
+  console.error(`❌ Node.js v22.12.0 or newer required (current: ${process.version})`);
+  process.exit(1);
+}
+
 require('dotenv').config();
 const { Client, GatewayIntentBits, Events, REST, Routes } = require('discord.js');
 const config = require('./config.js');
