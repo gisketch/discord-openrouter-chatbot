@@ -34,6 +34,16 @@ const commands = [
       type: 3,
       required: true
     }]
+  },
+  {
+    name: 'purge',
+    description: 'Delete messages in this channel',
+    options: [{
+      name: 'amount',
+      description: 'Number of messages to delete (leave blank to delete all)',
+      type: 4,
+      required: false
+    }]
   }
 ];
 
@@ -67,6 +77,38 @@ client.on(Events.InteractionCreate, async interaction => {
     channelSettings.set(interaction.channel.name, settings);
 
     await interaction.reply(`Model set to ${model} for this channel`);
+  } else if (interaction.commandName === 'purge') {
+    await interaction.deferReply({ ephemeral: true });
+    
+    const amount = interaction.options.getInteger('amount');
+    const channel = interaction.channel;
+    
+    try {
+      if (amount) {
+        // Delete specific number of messages
+        const messages = await channel.messages.fetch({ limit: amount + 1 });
+        await channel.bulkDelete(messages);
+        await interaction.editReply(`Deleted ${messages.size - 1} messages`);
+      } else {
+        // Delete all messages in the channel
+        let deletedCount = 0;
+        let messages;
+        
+        do {
+          // Fetch messages in batches of 100
+          messages = await channel.messages.fetch({ limit: 100 });
+          if (messages.size === 0) break;
+          
+          await channel.bulkDelete(messages);
+          deletedCount += messages.size;
+        } while (messages.size >= 2); // Continue until less than 2 messages remain
+        
+        await interaction.editReply(`Deleted ${deletedCount} messages`);
+      }
+    } catch (error) {
+      console.error('Purge error:', error);
+      await interaction.editReply('Error deleting messages: ' + error.message);
+    }
   }
 });
 
@@ -121,7 +163,14 @@ client.on(Events.MessageCreate, async message => {
     const reply = data.choices[0]?.message?.content;
 
     if (reply) {
-      await channel.send(reply);
+      // If reasoning is disabled, send immediately
+      if (!config.reasoning) {
+        await channel.send(reply);
+      } else {
+        // For models with reasoning, wait a brief moment before replying
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await channel.send(reply);
+      }
     } else {
       console.error('No response from OpenRouter:', data);
     }
