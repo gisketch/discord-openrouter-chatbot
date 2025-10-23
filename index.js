@@ -53,13 +53,25 @@ client.once(Events.ClientReady, async () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
   try {
-    await rest.put(
+    console.log('Refreshing application commands...');
+    console.log('Commands to register:', JSON.stringify(commands, null, 2));
+    
+    const data = await rest.put(
       Routes.applicationCommands(client.user.id),
       { body: commands }
     );
-    console.log('Successfully registered application commands.');
+    console.log(`Successfully registered ${data.length} application commands.`);
   } catch (error) {
     console.error('Error registering commands:', error);
+    
+    if (error.rawError) {
+      console.error('Discord API Error Details:', error.rawError);
+    }
+    
+    console.log('\nIf commands are not updating, try:',
+      '\n1. Delete old commands:',
+      `curl -X DELETE -H "Authorization: Bot ${process.env.DISCORD_TOKEN}" https://discord.com/api/v10/applications/${client.user.id}/commands`,
+      '\n2. Then restart the bot');
   }
 });
 
