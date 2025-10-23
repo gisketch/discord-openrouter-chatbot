@@ -130,7 +130,8 @@ client.on(Events.InteractionCreate, async interaction => {
     } catch (error) {
       console.error('Purge error:', error);
       await interaction.editReply('Error deleting messages: ' + error.message);
-    } else if (interaction.commandName === 'update') {
+    }
+  } else if (interaction.commandName === 'update') {
       // Only allow this command in #commands channel
       if (interaction.channel.name !== 'commands') {
         await interaction.reply({ 
